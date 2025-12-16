@@ -1,0 +1,17 @@
+{
+  "name": "@craudioviz/platform-sdk",
+  "version": "1.0.0",
+  "description": "CR AudioViz AI Platform SDK - Centralized auth, credits, and cross-selling",
+  "main": "index.ts",
+  "types": "index.ts",
+  "author": "CR AudioViz AI",
+  "license": "PROPRIETARY",
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "next": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CR-AudioViz-AI/platform-sdk"
+  }
+}
