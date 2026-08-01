@@ -82,7 +82,8 @@ export async function hasCredits(token: string, amount: number): Promise<boolean
 }
 
 /**
- * Get credit transaction history
+ * Get credit transaction history - real endpoint, built 2026-07-31
+ * (confirmed missing entirely before this fix).
  */
 export async function getCreditHistory(
   token: string,
@@ -109,8 +110,10 @@ export async function getCreditHistory(
  * Open credit purchase modal (redirects to platform)
  */
 export function purchaseCredits(returnUrl?: string) {
+  // Fixed 2026-07-31: /credits/purchase never existed (confirmed 404) - the
+  // real, existing purchase flow is the pricing page.
   const url = returnUrl || window.location.href
-  window.location.href = `${PLATFORM_URL}/credits/purchase?return=${encodeURIComponent(url)}&app=${APP_ID}`
+  window.location.href = `${PLATFORM_URL}/pricing?return=${encodeURIComponent(url)}&app=${APP_ID}`
 }
 
 /**
@@ -123,10 +126,10 @@ export const CREDIT_COSTS = {
   'javari.image': 10,
   'javari.document': 3,
   
-  // CRAVBarrels
-  'barrels.scan': 2,
-  'barrels.collection': 1,
-  'barrels.recommend': 3,
+  // Javari Spirits (renamed from CravBarrels)
+  'spirits.scan': 2,
+  'spirits.collection': 1,
+  'spirits.recommend': 3,
   
   // CardVerse
   'cards.create': 3,

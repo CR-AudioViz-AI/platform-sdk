@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { initPlatformAuth, logout, type PlatformUser } from '../lib/platform-auth'
+import { getCurrentSession, getCurrentUser, logout, type PlatformUser } from '../lib/platform-auth'
 import { getCredits, purchaseCredits, type CreditBalance } from '../lib/platform-credits'
 
 const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://craudiovizai.com'
@@ -16,7 +16,7 @@ interface PlatformNavbarProps {
 
 const APPS = [
   { id: 'home', name: 'Home', icon: '🏠', url: PLATFORM_URL },
-  { id: 'barrelverse', name: 'CRAVBarrels', icon: '🥃', url: 'https://cravbarrels.com' },
+  { id: 'spirits', name: 'Javari Spirits', icon: '🥃', url: 'https://javari-spirits.com' },
   { id: 'cardverse', name: 'CardVerse', icon: '🃏', url: 'https://cardverse.craudiovizai.com' },
   { id: 'games', name: 'Games', icon: '🎮', url: 'https://games.craudiovizai.com' },
   { id: 'javari', name: 'Javari AI', icon: '🤖', url: 'https://javariai.com' },
@@ -38,9 +38,9 @@ export function PlatformNavbar({
   useEffect(() => {
     async function loadUser() {
       try {
-        const session = await initPlatformAuth()
-        if (session) {
-          setUser(session.user)
+        const [currentUser, session] = await Promise.all([getCurrentUser(), getCurrentSession()])
+        if (currentUser && session) {
+          setUser(currentUser)
           if (showCredits) {
             const balance = await getCredits(session.access_token)
             setCredits(balance)
