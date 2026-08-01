@@ -136,7 +136,7 @@ export interface User {
   avatar_url?: string;
   created_at: string;
   credits_balance: number;
-  subscription_tier: 'free' | 'pro' | 'business' | 'enterprise';
+  subscription_tier: 'free' | 'creator' | 'pro' | 'business' | 'enterprise';
   subscription_status: 'active' | 'canceled' | 'past_due' | 'trialing';
 }
 
@@ -176,19 +176,55 @@ export interface Enhancement {
 // CORE FETCH HELPER
 // ============================================================================
 
+// Fixed 2026-07-31: this previously authenticated ONLY via
+// credentials:'include' (cookies) - broken for every real cross-origin
+// caller, since third-party cookies are blocked by default in Safari and
+// Firefox. Confirmed by searching the whole org: of ~60 repos that import
+// this file, only ONE real call site actually invoked a network method here
+// (CentralCredits.spend in javari-legal-docs) - and that was already
+// rewritten to bypass this broken path with a direct Bearer token. This is
+// very likely why javari-social and javari-activity each built their own
+// separate, disconnected local credit tables instead of using this shared
+// service: the shared mechanism never actually worked cross-origin.
+//
+// Real fix, with zero breaking changes to any of the 30+ public methods
+// below: centralFetch now reads the real session token directly from where
+// Supabase's own client already stores it (localStorage, same project
+// across every app) and sends it as a real Authorization: Bearer header -
+// the same pattern already proven working everywhere else on the platform
+// tonight. credentials:'include' is kept alongside it for same-origin
+// callers (harmless there, no regression), but the real fix is the header.
+function getStoredSupabaseToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const projectRef = (process.env.NEXT_PUBLIC_SUPABASE_URL || '')
+      .replace('https://', '').split('.')[0];
+    if (!projectRef) return null;
+    const raw = window.localStorage.getItem(`sb-${projectRef}-auth-token`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.access_token ?? parsed?.currentSession?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function centralFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<CentralResponse<T>> {
   try {
     const url = `${CENTRAL_API_BASE}${endpoint}`;
+    const token = getStoredSupabaseToken();
+    const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
-      credentials: 'include', // Important for auth cookies
+      credentials: 'include', // Kept for same-origin callers; the real fix is the Authorization header above
     });
 
     const data = await response.json();
@@ -323,8 +359,12 @@ export const CentralCredits = {
       };
     }
 
+    // Fixed 2026-07-31: the real endpoint reads the app id from the
+    // x-app-id HEADER, not the request body - every call through this SDK
+    // was silently attributed as 'unknown' before this fix.
     return centralFetch<{ balance: number; charged: number }>('/credits/spend', {
       method: 'POST',
+      headers: { 'x-app-id': appId },
       body: JSON.stringify({ amount, app_id: appId, description })
     });
   },
@@ -392,47 +432,60 @@ export const CentralCredits = {
 // PAYMENTS
 // ============================================================================
 
+// Fixed 2026-07-31: every endpoint in this object pointed at a route that
+// does not exist (/payments/checkout, /payments/credits, /payments/portal,
+// /payments/subscription all confirmed 404 against the real repo) - this
+// entire object was non-functional. createCheckout/purchaseCredits now call
+// the real, verified-working central checkout endpoint used successfully
+// elsewhere on the platform tonight. getBillingPortal/getSubscription still
+// have no real cross-origin-safe equivalent to point to - the one existing
+// billing endpoint (/api/customer/billing) authenticates via same-origin
+// cookies only, so it can't serve satellite apps either. Flagging rather
+// than pointing at something that would also silently fail.
 export const CentralPayments = {
   /**
-   * Create checkout session for subscription
+   * Create checkout session for a subscription tier
    */
   async createCheckout(
-    plan: 'pro' | 'business' | 'enterprise',
+    tierId: 'creator' | 'pro' | 'business' | 'enterprise',
     successUrl: string,
-    cancelUrl: string
-  ): Promise<CentralResponse<{ url: string; session_id: string }>> {
-    return centralFetch<{ url: string; session_id: string }>('/payments/checkout', {
+    cancelUrl: string,
+    billingCycle: 'monthly' | 'yearly' = 'monthly'
+  ): Promise<CentralResponse<{ url: string; sessionId: string }>> {
+    return centralFetch<{ url: string; sessionId: string }>('/payments/create-checkout', {
       method: 'POST',
-      body: JSON.stringify({ plan, success_url: successUrl, cancel_url: cancelUrl })
+      body: JSON.stringify({ mode: 'subscription', tierId, billingCycle, successUrl, cancelUrl })
     });
   },
 
   /**
-   * Create checkout session for credit pack
+   * Create checkout session for a one-time credit pack purchase
    */
   async purchaseCredits(
-    amount: number,
+    productId: string,
     successUrl: string,
     cancelUrl: string
-  ): Promise<CentralResponse<{ url: string; session_id: string }>> {
-    return centralFetch<{ url: string; session_id: string }>('/payments/credits', {
+  ): Promise<CentralResponse<{ url: string; sessionId: string }>> {
+    return centralFetch<{ url: string; sessionId: string }>('/payments/create-checkout', {
       method: 'POST',
-      body: JSON.stringify({ amount, success_url: successUrl, cancel_url: cancelUrl })
+      body: JSON.stringify({ mode: 'payment', productId, successUrl, cancelUrl })
     });
   },
 
   /**
-   * Get billing portal URL
+   * NOT YET IMPLEMENTED - no real cross-origin-safe billing portal endpoint
+   * exists yet. Calling this will return a clear error rather than silently
+   * fail against a route that doesn't exist.
    */
-  async getBillingPortal(returnUrl: string): Promise<CentralResponse<{ url: string }>> {
-    return centralFetch<{ url: string }>('/payments/portal', {
-      method: 'POST',
-      body: JSON.stringify({ return_url: returnUrl })
-    });
+  async getBillingPortal(_returnUrl: string): Promise<CentralResponse<{ url: string }>> {
+    return { success: false, error: 'Billing portal endpoint not yet built', code: 'NOT_IMPLEMENTED' };
   },
 
   /**
-   * Get current subscription status
+   * NOT YET IMPLEMENTED - the only existing billing status endpoint
+   * (/api/customer/billing) authenticates via same-origin cookies only and
+   * cannot serve cross-origin satellite app requests. A real, token-based
+   * equivalent needs to be built before this can work.
    */
   async getSubscription(): Promise<CentralResponse<{
     plan: string;
@@ -440,7 +493,7 @@ export const CentralPayments = {
     current_period_end: string;
     cancel_at_period_end: boolean;
   }>> {
-    return centralFetch('/payments/subscription');
+    return { success: false, error: 'Subscription status endpoint not yet built', code: 'NOT_IMPLEMENTED' };
   }
 };
 
@@ -490,10 +543,11 @@ export const CentralSupport = {
   },
 
   /**
-   * Search knowledge base
+   * NOT YET IMPLEMENTED - /api/support/kb/search does not exist yet
+   * (confirmed 404 against the real repo, 2026-07-31).
    */
-  async searchKnowledgeBase(query: string): Promise<CentralResponse<any[]>> {
-    return centralFetch<any[]>(`/support/kb/search?q=${encodeURIComponent(query)}`);
+  async searchKnowledgeBase(_query: string): Promise<CentralResponse<any[]>> {
+    return { success: false, error: 'Knowledge base search endpoint not yet built', code: 'NOT_IMPLEMENTED' };
   }
 };
 
@@ -546,10 +600,12 @@ export const CentralEnhancements = {
   },
 
   /**
-   * Get roadmap (public)
+   * NOT YET IMPLEMENTED - /api/enhancements/roadmap does not exist yet
+   * (confirmed 404 against the real repo, 2026-07-31). Use getAll() instead,
+   * which does exist and works.
    */
   async getRoadmap(): Promise<CentralResponse<Enhancement[]>> {
-    return centralFetch<Enhancement[]>('/enhancements/roadmap');
+    return { success: false, error: 'Roadmap endpoint not yet built - use getAll() instead', code: 'NOT_IMPLEMENTED' };
   }
 };
 
