@@ -473,19 +473,17 @@ export const CentralPayments = {
   },
 
   /**
-   * NOT YET IMPLEMENTED - no real cross-origin-safe billing portal endpoint
-   * exists yet. Calling this will return a clear error rather than silently
-   * fail against a route that doesn't exist.
+   * Get billing portal URL - real endpoint, built 2026-07-31.
    */
-  async getBillingPortal(_returnUrl: string): Promise<CentralResponse<{ url: string }>> {
-    return { success: false, error: 'Billing portal endpoint not yet built', code: 'NOT_IMPLEMENTED' };
+  async getBillingPortal(returnUrl: string): Promise<CentralResponse<{ url: string }>> {
+    return centralFetch<{ url: string }>('/payments/portal', {
+      method: 'POST',
+      body: JSON.stringify({ return_url: returnUrl })
+    });
   },
 
   /**
-   * NOT YET IMPLEMENTED - the only existing billing status endpoint
-   * (/api/customer/billing) authenticates via same-origin cookies only and
-   * cannot serve cross-origin satellite app requests. A real, token-based
-   * equivalent needs to be built before this can work.
+   * Get current subscription status - real endpoint, built 2026-07-31.
    */
   async getSubscription(): Promise<CentralResponse<{
     plan: string;
@@ -493,7 +491,7 @@ export const CentralPayments = {
     current_period_end: string;
     cancel_at_period_end: boolean;
   }>> {
-    return { success: false, error: 'Subscription status endpoint not yet built', code: 'NOT_IMPLEMENTED' };
+    return centralFetch('/payments/subscription');
   }
 };
 
@@ -543,11 +541,10 @@ export const CentralSupport = {
   },
 
   /**
-   * NOT YET IMPLEMENTED - /api/support/kb/search does not exist yet
-   * (confirmed 404 against the real repo, 2026-07-31).
+   * Search knowledge base - real endpoint, built 2026-07-31.
    */
-  async searchKnowledgeBase(_query: string): Promise<CentralResponse<any[]>> {
-    return { success: false, error: 'Knowledge base search endpoint not yet built', code: 'NOT_IMPLEMENTED' };
+  async searchKnowledgeBase(query: string): Promise<CentralResponse<any[]>> {
+    return centralFetch<any[]>(`/support/kb/search?q=${encodeURIComponent(query)}`);
   }
 };
 
@@ -600,12 +597,10 @@ export const CentralEnhancements = {
   },
 
   /**
-   * NOT YET IMPLEMENTED - /api/enhancements/roadmap does not exist yet
-   * (confirmed 404 against the real repo, 2026-07-31). Use getAll() instead,
-   * which does exist and works.
+   * Get public roadmap - real endpoint, built 2026-07-31.
    */
   async getRoadmap(): Promise<CentralResponse<Enhancement[]>> {
-    return { success: false, error: 'Roadmap endpoint not yet built - use getAll() instead', code: 'NOT_IMPLEMENTED' };
+    return centralFetch<Enhancement[]>('/enhancements/roadmap');
   }
 };
 
