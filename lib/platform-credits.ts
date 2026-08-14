@@ -126,7 +126,7 @@ export const CREDIT_COSTS = {
   'javari.image': 10,
   'javari.document': 3,
   
-  // Javari Spirits (renamed from CravBarrels)
+  // Javari Spirits (renamed from Javari Spirits)
   'spirits.scan': 2,
   'spirits.collection': 1,
   'spirits.recommend': 3,

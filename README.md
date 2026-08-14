@@ -19,9 +19,9 @@
         ┌─────────────────┼─────────────────┐
         │                 │                 │
    ┌────┴────┐      ┌────┴────┐      ┌────┴────┐
-   │CRAVBarrels│    │CardVerse │    │ Games   │
+   │Javari Spirits│    │CardVerse │    │ Games   │
    │ Domain   │    │  Domain  │    │ Domain  │
-   │cravbarrels│   │cardverse │    │ games   │
+   │javarispirits│   │cardverse │    │ games   │
    │  .com    │    │  .com    │    │  .com   │
    └──────────┘    └──────────┘    └──────────┘
 
@@ -45,6 +45,6 @@
 |-----|--------|---------|
 | Javari AI | Chat message | 1 |
 | Javari AI | Code generation | 5 |
-| CRAVBarrels | Spirit scan | 2 |
+| Javari Spirits | Spirit scan | 2 |
 | CardVerse | Card creation | 3 |
 | Games | Premium game | 10 |

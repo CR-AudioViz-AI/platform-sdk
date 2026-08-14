@@ -17,10 +17,10 @@ interface App {
 const PLATFORM_APPS: App[] = [
   {
     id: 'barrelverse',
-    name: 'CRAVBarrels',
+    name: 'Javari Spirits',
     tagline: 'Discover 22,000+ Premium Spirits',
     icon: '🥃',
-    url: 'https://cravbarrels.com',
+    url: 'https://javarispirits.com',
     color: 'amber',
     category: 'lifestyle',
   },
@@ -35,7 +35,7 @@ const PLATFORM_APPS: App[] = [
   },
   {
     id: 'games',
-    name: 'CRAV Games',
+    name: 'Javari Games',
     tagline: '1,200+ Free Games',
     icon: '🎮',
     url: 'https://games.craudiovizai.com',
@@ -52,11 +52,11 @@ const PLATFORM_APPS: App[] = [
     category: 'productivity',
   },
   {
-    id: 'craiverse',
-    name: 'CRAIverse',
+    id: 'javariverse',
+    name: 'Javariverse',
     tagline: 'Virtual World Experience',
     icon: '🌍',
-    url: 'https://craiverse.craudiovizai.com',
+    url: 'https://javariverse.craudiovizai.com',
     color: 'cyan',
     category: 'social',
   },
