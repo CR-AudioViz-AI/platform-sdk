@@ -88,7 +88,26 @@ export async function getCurrentUser(): Promise<PlatformUser | null> {
  * signInWithOAuth, letting Supabase handle the redirect and PKCE code
  * exchange itself, never a custom token round-trip.
  */
-export async function loginWithProvider(provider: 'google' | 'github' | 'discord'): Promise<void> {
+/**
+ * Every provider ENABLED IN CORE, verified against the live Supabase auth config
+ * on 2026-08-28: 16 are on, and this function accepted THREE.
+ *
+ * That gap is not cosmetic. Under the architecture law an app consumes CORE OAuth
+ * and never implements its own - so an app built on this SDK could offer a
+ * customer three logins while the platform supports sixteen, and the natural fix
+ * for whoever hit it would be to add local auth to the app. That is exactly how
+ * Verify was built wrong the first time.
+ */
+export type PlatformProvider =
+  | 'google' | 'github' | 'discord' | 'azure' | 'facebook' | 'figma'
+  | 'gitlab' | 'linkedin_oidc' | 'notion' | 'slack_oidc' | 'spotify'
+  | 'twitch' | 'twitter' | 'x' | 'zoom';
+
+export async function loginWithProvider(provider: PlatformProvider): Promise<void> {
+  // 2026-08-28: redirectTo carries ONLY the callback path. The code exchange at
+  // /auth/confirm must be passed ONLY the `code` param, never the full URL, and a
+  // token must NEVER appear in a URL - locked 2026-07-15 after chunked cookies
+  // corrupted sessions across racing client instances.
   await getSupabaseClient().auth.signInWithOAuth({
     provider,
     options: { redirectTo: `${window.location.origin}/auth/confirm` },
