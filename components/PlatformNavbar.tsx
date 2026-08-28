@@ -128,7 +128,10 @@ export function PlatformNavbar({
                   <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full" />
                 ) : (
                   <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center text-white font-medium">
-                    {user.name?.[0] || user.email[0].toUpperCase()}
+                    {/* 2026-08-27: user.email[0] is possibly undefined under
+                        noUncheckedIndexedAccess — an empty email string would
+                        crash the avatar rather than render a blank one. */}
+                    {user.name?.[0] || user.email?.[0]?.toUpperCase() || '?'}
                   </div>
                 )}
               </button>
