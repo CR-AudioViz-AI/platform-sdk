@@ -16,7 +16,11 @@ export function ThemeToggle() {
     const themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    // 2026-08-27: noUncheckedIndexedAccess makes themes[i] possibly undefined.
+    // The modulo guarantees a valid index, but the compiler cannot know that — and
+    // a non-null assertion would hide a real bug if `themes` were ever emptied.
+    const next = themes[nextIndex];
+    if (next) setTheme(next);
   };
 
   return (
