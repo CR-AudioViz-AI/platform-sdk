@@ -2,14 +2,25 @@
 // Use this SDK to integrate any app with the centralized platform
 
 // Auth
+// 2026-08-27: THREE OF THESE DID NOT EXIST. platform-auth exports
+// PlatformProvider, PlatformUser, getCurrentSession, getCurrentUser,
+// getSupabaseClient, loginWithProvider, logout and onAuthStateChange.
+//
+// initPlatformAuth, handleAuthCallback and AuthSession were never there — so any
+// app importing them from the SDK root failed to compile, and two REAL exports
+// (getCurrentSession, onAuthStateChange) were unreachable because nobody listed
+// them.
+//
+// Corrected against the module rather than the intent.
 export {
-  initPlatformAuth,
   loginWithProvider,
-  handleAuthCallback,
   logout,
   getCurrentUser,
+  getCurrentSession,
+  getSupabaseClient,
+  onAuthStateChange,
   type PlatformUser,
-  type AuthSession,
+  type PlatformProvider,
 } from './lib/platform-auth'
 
 // Credits
