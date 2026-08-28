@@ -7,7 +7,11 @@ import { CREDITS_CONFIG } from './brand-config';
 interface CreditsBarProps {
   isLoggedIn: boolean;
   credits?: number;
-  plan?: 'free' | 'pro' | 'business';
+  // 2026-08-27: same narrow union as BrandedHeader had. User.subscription_tier
+  // carries five tiers; this accepted three, so a creator or enterprise customer
+  // could not be passed through at all.
+  plan?: 'free' | 'creator' | 'pro' | 'business' | 'enterprise';
+  userName?: string | undefined;
   userName?: string;
 }
 
