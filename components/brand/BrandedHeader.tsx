@@ -37,11 +37,15 @@ export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHead
   const checkAuthStatus = async () => {
     try {
       const session = await CentralServices.Auth.getSession();
-      if (session.success && session.data?.user) {
+      // 2026-08-27: getSession returns CentralResponse<User | null> — the user IS
+      // session.data. This read session.data.user, one level too deep, so the
+      // condition was ALWAYS FALSE and the header never showed a signed-in user.
+      // It compiled because nothing typechecked this package.
+      if (session.success && session.data) {
         setIsLoggedIn(true);
         setUser({
-          name: session.data.user.user_metadata?.full_name,
-          email: session.data.user.email,
+          name: session.data.user_metadata?.full_name,
+          email: session.data.email,
         });
         
         // Fetch credits
