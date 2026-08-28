@@ -191,10 +191,20 @@ export const CREDITS_CONFIG = {
   warningThreshold: 10,
   criticalThreshold: 5,
   
+  // 2026-08-27: creator and enterprise were MISSING. User.subscription_tier has
+  // five values and this had three, so CREDITS_CONFIG.plans[plan] returned
+  // undefined for a creator or enterprise customer — the credits bar rendered
+  // blank plan details for exactly the paying tiers.
+  //
+  // Figures follow the existing ladder. They are placeholders in the sense that
+  // Roy sets pricing, not in the sense that they are fake: nothing here is shown
+  // as a purchasable price, the pricing page reads credit_packs.
   plans: {
-    free: { name: 'Free', credits: 50, price: 0 },
-    pro: { name: 'Pro', credits: 500, price: 19 },
-    business: { name: 'Business', credits: 5000, price: 99 },
+    free:       { name: 'Free',       credits: 50,    price: 0 },
+    creator:    { name: 'Creator',    credits: 200,   price: 9 },
+    pro:        { name: 'Pro',        credits: 500,   price: 19 },
+    business:   { name: 'Business',   credits: 5000,  price: 99 },
+    enterprise: { name: 'Enterprise', credits: 25000, price: 499 },
   },
   
   topUpPacks: [
