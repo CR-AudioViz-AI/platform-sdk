@@ -12,7 +12,6 @@ interface CreditsBarProps {
   // could not be passed through at all.
   plan?: 'free' | 'creator' | 'pro' | 'business' | 'enterprise';
   userName?: string | undefined;
-  userName?: string;
 }
 
 /**
