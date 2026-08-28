@@ -2,7 +2,7 @@
  * CR AudioViz AI Brand System
  * 
  * Export all brand components and configurations.
- * Usage: import { BrandedHeader, ThemeProvider } from '@/components/brand';
+ * Usage: import { BrandedHeader, ThemeProvider } from '@craudioviz/platform-sdk';
  */
 
 // Configuration

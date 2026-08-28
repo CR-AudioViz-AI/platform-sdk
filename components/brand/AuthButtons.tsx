@@ -2,7 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { CentralServices } from '@/lib/central-services';
+// 2026-08-28: was '@/lib/central-services'. A `@/` path alias resolves against
+// the CONSUMER's tsconfig, not this package, so from a consumer's node_modules
+// it resolves to nothing. Webpack only surfaced it once a consumer added
+// transpilePackages and actually parsed these files:
+//   Module not found: Can't resolve '@/lib/central-services'
+// A published package must use relative imports for its own files.
+import { CentralServices } from '../../lib/central-services';
 
 interface AuthButtonsProps {
   isLoggedIn: boolean;
