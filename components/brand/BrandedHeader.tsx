@@ -25,9 +25,16 @@ interface BrandedHeaderProps {
  */
 export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHeaderProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+  // exactOptionalPropertyTypes: `name?: string` rejects an explicit undefined.
+  // User.name is optional, so the value assigned may legitimately BE undefined —
+  // the property type has to say so rather than the caller working around it.
+  const [user, setUser] = useState<{ name?: string | undefined; email?: string | undefined } | null>(null);
   const [credits, setCredits] = useState(0);
-  const [plan, setPlan] = useState<'free' | 'pro' | 'business'>('free');
+  // 2026-08-27: the union was missing 'creator' and 'enterprise'. User.
+  // subscription_tier is 'free' | 'creator' | 'pro' | 'business' | 'enterprise',
+  // so a creator or enterprise customer could not be represented here at all —
+  // their tier fell through to 'free' and the header showed the wrong plan.
+  const [plan, setPlan] = useState<'free' | 'creator' | 'pro' | 'business' | 'enterprise'>('free');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
