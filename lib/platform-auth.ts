@@ -15,8 +15,17 @@
  */
 import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kteobfyferrukqeolofj.supabase.co'
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+// 2026-08-28: these were the SDK's own reads of the legacy key names. The
+// canonical accessor sits beside this file and prefers the new-generation keys,
+// so the SDK migrates with its consumers rather than pinning them to the keys
+// Supabase deletes in late 2026.
+//
+// The URL keeps its literal default: it is not a credential, and the SDK is
+// imported by apps that have not yet set it.
+import { publishableKey, supabaseUrl } from './supabase-keys'
+
+const SUPABASE_URL = supabaseUrl() || 'https://kteobfyferrukqeolofj.supabase.co'
+const SUPABASE_ANON_KEY = publishableKey()
 
 export interface PlatformUser {
   id: string
