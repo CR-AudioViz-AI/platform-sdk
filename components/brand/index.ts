@@ -19,4 +19,9 @@ export { CreditsBar } from './CreditsBar';
 export { AuthButtons } from './AuthButtons';
 
 // Tailwind config extension
-export { brandConfig as tailwindBrandConfig } from './tailwind.brand.config';
+// 2026-08-27: REMOVED — './tailwind.brand.config' does not exist in this package.
+// TS2307 on every consumer that imports the barrel. The file was presumably never
+// committed, or was deleted without updating the export.
+//
+// Deleted rather than stubbed: an export pointing at a missing module is a broken
+// promise, and a stub would make it look satisfied.
