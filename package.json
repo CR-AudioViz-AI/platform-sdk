@@ -13,5 +13,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/CR-AudioViz-AI/platform-sdk"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
