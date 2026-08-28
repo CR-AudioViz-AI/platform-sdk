@@ -44,7 +44,9 @@ export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHead
       if (session.success && session.data) {
         setIsLoggedIn(true);
         setUser({
-          name: session.data.user_metadata?.full_name,
+          // 2026-08-27: User has `name`, not `user_metadata.full_name` — that is the
+        // Supabase auth shape, not this SDK's. Read from the interface.
+        name: session.data.name,
           email: session.data.email,
         });
         
@@ -52,7 +54,9 @@ export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHead
         const creditsResult = await CentralServices.Credits.getBalance();
         if (creditsResult.success) {
           setCredits(creditsResult.data?.balance || 0);
-          setPlan(creditsResult.data?.plan || 'free');
+          // User carries `subscription_tier`, not `plan`. The credits response has no
+          // plan field at all — the tier lives on the user.
+          setPlan(session.data?.subscription_tier || 'free');
         }
       }
     } catch (error) {
