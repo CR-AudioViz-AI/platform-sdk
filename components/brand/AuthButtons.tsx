@@ -6,9 +6,13 @@ import { CentralServices } from '@/lib/central-services';
 
 interface AuthButtonsProps {
   isLoggedIn: boolean;
-  userName?: string;
-  userEmail?: string;
-  onLogout?: () => void;
+  // 2026-08-27: `string | undefined`, not `string?`. Under
+  // exactOptionalPropertyTypes an optional property REJECTS an explicit
+  // undefined, and BrandedHeader passes user?.name — which is undefined
+  // whenever nobody is signed in, i.e. the normal case.
+  userName?: string | undefined;
+  userEmail?: string | undefined;
+  onLogout?: (() => void) | undefined;
 }
 
 /**
