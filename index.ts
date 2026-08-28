@@ -1,6 +1,23 @@
 // CR AudioViz AI - Platform SDK
 // Use this SDK to integrate any app with the centralized platform
 
+// Supabase API keys — THE canonical resolution for the whole org.
+//
+// 2026-08-28: Supabase deletes the legacy anon/service_role JWTs in late 2026.
+// 99 Vercel projects read them. Replaying the craudiovizai codemod across the
+// other 98 apps would have created 98 copies of the accessor — the six-copies
+// spread this SDK exists to end. Consumers import from here instead;
+// craudiovizai keeps a local copy because it is the platform, not a consumer.
+export {
+  supabaseUrl,
+  publishableKey,
+  secretKey,
+  keyReport,
+  assertSupabaseKeys,
+  type KeyGeneration,
+  type SupabaseKeyReport,
+} from './lib/supabase-keys'
+
 // Auth
 // 2026-08-27: THREE OF THESE DID NOT EXIST. platform-auth exports
 // PlatformProvider, PlatformUser, getCurrentSession, getCurrentUser,
