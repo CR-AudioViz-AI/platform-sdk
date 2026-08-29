@@ -73,18 +73,22 @@ export { PlatformNavbar } from './components/PlatformNavbar'
 // drift this consolidation exists to remove.
 export * from './components/brand';
 
-// Egress guard — the one boundary for server-side fetches of caller-supplied URLs.
+
+// Egress guard — deliberately NOT re-exported from this barrel.
 //
-// 2026-08-29: CodeQL had 39 open critical js/request-forgery findings across
-// nine repos. javari-verify already had the right answer; copying it eight more
-// times would recreate the spread this SDK exists to end, so it lives here and
-// javari-verify imports it back.
-export {
-  guardUrl,
-  guardedFetch,
-  isBlockedIp,
-  urlSegment,
-  EgressBlockedError,
-  type GuardVerdict,
-  type GuardOptions,
-} from './lib/egress-guard'
+// 2026-08-29: it WAS exported here for about twenty minutes, and that was a
+// defect. The guard imports node:dns/promises and node:net, and webpack rejects
+// the `node:` scheme at the SCHEME stage — before resolve.fallback or
+// resolve.alias is ever consulted, which is why the error is UnhandledSchemeError
+// and not "Can't resolve". Anything importing this barrel therefore fails to
+// build, including client components and edge routes that only wanted
+// getCurrentUser. Caught by javari-scrapbook's build refusing to compile; had it
+// merged, the next build in all 98 consumers would have broken the same way.
+//
+// A Node-only module does not belong in a barrel that client code imports. It is
+// reached by its own path instead, which also makes the runtime requirement
+// visible at the call site:
+//
+//   import { guardedFetch } from '@craudioviz/platform-sdk/lib/egress-guard';
+//
+// with `export const runtime = "nodejs"` on the route that uses it.
