@@ -4,6 +4,9 @@
   "description": "CR AudioViz AI Platform SDK - Centralized auth, credits, and cross-selling",
   "main": "index.ts",
   "types": "index.ts",
+  "scripts": {
+    "test:egress": "node --test --experimental-strip-types lib/egress-guard.test.ts"
+  },
   "author": "CR AudioViz AI",
   "license": "PROPRIETARY",
   "peerDependencies": {

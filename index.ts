@@ -72,3 +72,19 @@ export { PlatformNavbar } from './components/PlatformNavbar'
 // for what the shell exports, and a second hand-maintained list is exactly the
 // drift this consolidation exists to remove.
 export * from './components/brand';
+
+// Egress guard — the one boundary for server-side fetches of caller-supplied URLs.
+//
+// 2026-08-29: CodeQL had 39 open critical js/request-forgery findings across
+// nine repos. javari-verify already had the right answer; copying it eight more
+// times would recreate the spread this SDK exists to end, so it lives here and
+// javari-verify imports it back.
+export {
+  guardUrl,
+  guardedFetch,
+  isBlockedIp,
+  urlSegment,
+  EgressBlockedError,
+  type GuardVerdict,
+  type GuardOptions,
+} from './lib/egress-guard'
