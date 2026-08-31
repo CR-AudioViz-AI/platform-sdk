@@ -1,0 +1,41 @@
+{
+  "$comment": [
+    "config/tsconfig.base.json — the ONE TypeScript configuration for the platform.",
+    "",
+    "2026-08-30. Apps extend this instead of carrying their own. The reason, measured:",
+    "FIVE DIFFERENT TARGETS existed across fourteen satellites — es5, ES2017, ES2020,",
+    "ES2022, and one repo with no target at all. Nobody CHOSE es5; it was inherited",
+    "from whatever template each repo started from, and it cost javari-games 22 type",
+    "errors because its engines iterate Maps and Map iteration needs ES2015 or higher.",
+    "",
+    "That is the config-copying problem in one line: 98 repos each owning a framework",
+    "configuration means 98 edits for every framework decision.",
+    "",
+    "USE IT:  { \"extends\": \"@craudioviz/platform-sdk/config/tsconfig.base.json\" }",
+    "then add only paths and include, which are genuinely per-app.",
+    "",
+    "noImplicitAny is ON. javari-realty turned it on deliberately on 2026-08-21 and",
+    "that decision surfaced 135 real errors including a service-role key travelling in",
+    "a URL query string. Checking off is how those survive."
+  ],
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "jsx": "preserve",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": false,
+    "forceConsistentCasingInFileNames": true,
+    "plugins": [{ "name": "next" }]
+  }
+}
