@@ -23,6 +23,7 @@ import { createClient, type SupabaseClient, type Session } from '@supabase/supab
 // The URL keeps its literal default: it is not a credential, and the SDK is
 // imported by apps that have not yet set it.
 import { publishableKey, supabaseUrl } from './supabase-keys'
+import type { Provider as SupabaseProvider } from '@supabase/supabase-js';
 
 const SUPABASE_URL = supabaseUrl() || 'https://kteobfyferrukqeolofj.supabase.co'
 const SUPABASE_ANON_KEY = publishableKey()
@@ -107,10 +108,22 @@ export async function getCurrentUser(): Promise<PlatformUser | null> {
  * for whoever hit it would be to add local auth to the app. That is exactly how
  * Verify was built wrong the first time.
  */
-export type PlatformProvider =
+// 2026-09-01: DERIVED from Supabase's own Provider union rather than restated.
+//
+// The hand-written list contained a value supabase-js does not accept, so
+// signInWithOAuth({ provider }) failed to typecheck — in the SDK itself, which means
+// EVERY consumer inherited the error. javari-dashboard reported it from inside
+// node_modules.
+//
+// Extract<> keeps this list as a strict subset of what the library supports. Add a
+// provider Supabase has never heard of and the error now lands HERE, on the line that
+// invented it, instead of in sixteen downstream repos.
+export type PlatformProvider = Extract<
+  SupabaseProvider,
   | 'google' | 'github' | 'discord' | 'azure' | 'facebook' | 'figma'
   | 'gitlab' | 'linkedin_oidc' | 'notion' | 'slack_oidc' | 'spotify'
-  | 'twitch' | 'twitter' | 'x' | 'zoom';
+  | 'twitch' | 'twitter' | 'zoom'
+>;
 
 export async function loginWithProvider(provider: PlatformProvider): Promise<void> {
   // 2026-08-28: redirectTo carries ONLY the callback path. The code exchange at
