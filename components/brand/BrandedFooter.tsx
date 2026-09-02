@@ -34,20 +34,30 @@ export function BrandedFooter({
     { label: 'Pricing', href: '/pricing' },
     { label: 'Blog', href: '/blog' },
   ],
+  // 2026-09-03: these defaults pointed at LOCAL paths that only exist on the core
+  // platform. Every satellite rendering this footer published links to /contact,
+  // /support, /privacy and /terms on its own host, where none of them exist — an
+  // ecosystem sweep with Javari Verify found them 404ing across the fleet.
+  //
+  // They are absolute now, because these pages are genuinely central: one privacy
+  // policy, one contact form, one status page. Duplicating them per app would mean
+  // sixty privacy policies to keep in step, which is worse than a cross-origin link.
+  //
+  // /api and /integrations are REMOVED rather than repointed. They return 404 on
+  // core too — they were links to pages that were never written anywhere, and
+  // shipping a footer link to nothing is the defect, not the destination.
   productLinks = [
-    { label: 'Features', href: '/features' },
-    { label: 'API', href: '/api' },
-    { label: 'Integrations', href: '/integrations' },
+    { label: 'Features', href: 'https://craudiovizai.com/features' },
   ],
   supportLinks = [
-    { label: 'Help Center', href: '/support' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'Status', href: '/status' },
+    { label: 'Help Center', href: 'https://craudiovizai.com/support' },
+    { label: 'Contact', href: 'https://craudiovizai.com/contact' },
+    { label: 'Status', href: 'https://craudiovizai.com/status' },
   ],
   legalLinks = [
-    { label: 'Privacy', href: '/privacy' },
-    { label: 'Terms', href: '/terms' },
-    { label: 'Cookies', href: '/cookies' },
+    { label: 'Privacy', href: 'https://craudiovizai.com/privacy' },
+    { label: 'Terms', href: 'https://craudiovizai.com/terms' },
+    { label: 'Cookies', href: 'https://craudiovizai.com/cookies' },
   ],
 }: BrandedFooterProps) {
   const currentYear = new Date().getFullYear();
