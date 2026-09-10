@@ -92,3 +92,15 @@ export * from './components/brand';
 //   import { guardedFetch } from '@craudioviz/platform-sdk/lib/egress-guard';
 //
 // with `export const runtime = "nodejs"` on the route that uses it.
+
+// 2026-09-10: THE EMBED KIT. An app shown on craudiovizai.com/apps/<slug> by the
+// registry route imports these instead of carrying its own copies:
+//   <head><script dangerouslySetInnerHTML={{ __html: EMBED_PREPAINT_SCRIPT }} /></head>
+//   <body><EmbedBridge /> ... mark the app's own header/footer with data-app-chrome
+// and in next.config.js: require('@craudioviz/platform-sdk/embed-headers.js').
+// Browser-safe and dependency-free on purpose: this barrel is imported by 55 apps
+// that follow main unpinned, so nothing here may pull in a Node-only module.
+export { isEmbedded, postToParent, parentAccessToken, initBridge, isTrustedParentOrigin } from './lib/embed/bridge';
+export { EMBED_PREPAINT_SCRIPT } from './lib/embed/prepaint';
+export { default as EmbedBridge } from './components/embed/EmbedBridge';
+
