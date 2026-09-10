@@ -1,3 +1,13 @@
+// 2026-09-07: framer-motion removed from this component ON PURPOSE.
+//
+// The core pins framer-motion ^13, javari-scrapbook pins ^10, and the SDK
+// declared it not at all. With transpilePackages the SDK's import resolves to
+// whatever the CONSUMING app has, so this header 500'd at runtime against v10
+// while building green.
+//
+// A component every app renders must not depend on a library each app pins
+// differently. The animations were decorative; the navigation is not.
+
 // components/PlatformHeader.tsx — THE site header, for every app
 //
 // 2026-09-07. This is components/Navigation.tsx from the craudiovizai repo,
@@ -20,7 +30,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavigationProps {
   user?: {
@@ -105,17 +114,14 @@ export default function PlatformHeader({ user }: NavigationProps) {
                     </svg>
                   </button>
 
-                  <AnimatePresence>
+                  <>
                     {userMenuOpen && (
                       <>
                         <div
                           className="fixed inset-0 z-10"
                           onClick={() => setUserMenuOpen(false)}
                         />
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
+                        <div}}}
                           className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden"
                         >
                           {/* User Info */}
@@ -183,10 +189,10 @@ export default function PlatformHeader({ user }: NavigationProps) {
                               <span>🚪</span> Sign Out
                             </button>
                           </div>
-                        </motion.div>
+                        </div>
                       </>
                     )}
-                  </AnimatePresence>
+                  </>
                 </div>
               </>
             ) : (
@@ -223,12 +229,9 @@ export default function PlatformHeader({ user }: NavigationProps) {
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
+        <>
           {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+            <div}}}
               className="md:hidden border-t border-gray-200 dark:border-gray-800 py-4"
             >
               <nav className="flex flex-col gap-1">
@@ -257,9 +260,9 @@ export default function PlatformHeader({ user }: NavigationProps) {
                   </Link>
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
     </header>
   );
