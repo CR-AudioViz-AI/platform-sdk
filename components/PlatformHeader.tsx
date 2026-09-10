@@ -1,47 +1,36 @@
-// 2026-09-07: framer-motion removed from this component ON PURPOSE.
-//
-// The core pins framer-motion ^13, javari-scrapbook pins ^10, and the SDK
-// declared it not at all. With transpilePackages the SDK's import resolves to
-// whatever the CONSUMING app has, so this header 500'd at runtime against v10
-// while building green.
-//
-// A component every app renders must not depend on a library each app pins
-// differently. The animations were decorative; the navigation is not.
-
 // components/PlatformHeader.tsx — THE site header, for every app
 //
-// 2026-09-07. This is components/Navigation.tsx from the craudiovizai repo,
-// ported here so every app renders THE SAME header rather than its own.
+// 2026-09-07. components/Navigation.tsx from the core, ported so every app
+// renders THE SAME header instead of its own.
 //
-// Why it exists: apps were each rendering their own chrome. javari-scrapbook
-// showed a pink Features/Templates/Pricing bar, javari-spirits its own, and the
-// SDK's BrandedHeader was a thin strip with a logo and a Log In link - not the
-// site header at all. Three different headers across one platform.
+// ONLY the hrefs were changed - made absolute to craudiovizai.com, because an
+// app on its own domain must still lead back to the platform and a relative
+// href resolves against the app's host.
 //
-// EVERY href is absolute to craudiovizai.com. An app on its own domain must
-// still lead back to the platform, and a relative href would resolve against
-// the app's own host and 404.
+// An earlier version of this file also had framer-motion stripped out by regex.
+// That damaged the JSX, the module stopped parsing, and the export vanished -
+// which Next reports as 'PlatformHeader is not exported', a WARNING at build
+// time and a 500 at runtime. framer-motion is now declared as an SDK dependency
+// instead. Do not run regex over JSX.
 //
-// Keep this in sync with the core's Navigation.tsx. If they drift, the platform
-// looks like two companies again.
+// `user` is optional: apps render <PlatformHeader /> with no props.
 
+'use client';
+
+// /components/Navigation.tsx
+// Global Navigation - CR AudioViz AI
+// Responsive header with user menu, credits, and quick actions
 
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface NavigationProps {
-  user?: {
-    name: string;
-    email: string;
-    avatar?: string;
-    tier: string;
-    credits: number;
-  };
+;
 }
 
-export default function PlatformHeader({ user }: NavigationProps) {
+export default function PlatformHeader({ user }: { user?: NavigationUser } = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -114,14 +103,17 @@ export default function PlatformHeader({ user }: NavigationProps) {
                     </svg>
                   </button>
 
-                  <>
+                  <AnimatePresence>
                     {userMenuOpen && (
                       <>
                         <div
                           className="fixed inset-0 z-10"
                           onClick={() => setUserMenuOpen(false)}
                         />
-                        <div}}}
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
                           className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden"
                         >
                           {/* User Info */}
@@ -189,10 +181,10 @@ export default function PlatformHeader({ user }: NavigationProps) {
                               <span>🚪</span> Sign Out
                             </button>
                           </div>
-                        </div>
+                        </motion.div>
                       </>
                     )}
-                  </>
+                  </AnimatePresence>
                 </div>
               </>
             ) : (
@@ -229,9 +221,12 @@ export default function PlatformHeader({ user }: NavigationProps) {
         </div>
 
         {/* Mobile Menu */}
-        <>
+        <AnimatePresence>
           {mobileMenuOpen && (
-            <div}}}
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
               className="md:hidden border-t border-gray-200 dark:border-gray-800 py-4"
             >
               <nav className="flex flex-col gap-1">
@@ -260,9 +255,9 @@ export default function PlatformHeader({ user }: NavigationProps) {
                   </Link>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
-        </>
+        </AnimatePresence>
       </div>
     </header>
   );
