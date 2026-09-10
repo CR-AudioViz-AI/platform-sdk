@@ -92,10 +92,3 @@ export * from './components/brand';
 //   import { guardedFetch } from '@craudioviz/platform-sdk/lib/egress-guard';
 //
 // with `export const runtime = "nodejs"` on the route that uses it.
-
-// 2026-09-07: THE site header and footer, for every app.
-// BrandedHeader is NOT the site header - it is a thin strip with a logo and a
-// Log In link. Wiring it into javari-scrapbook produced three competing bars.
-// These two are the real chrome, ported from the core so every app matches.
-export { default as PlatformHeader } from './components/PlatformHeader';
-export { default as PlatformFooter, PlatformFooter as SiteFooter } from './components/PlatformFooter';

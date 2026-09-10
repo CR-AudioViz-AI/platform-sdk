@@ -18,7 +18,6 @@
     "url": "https://github.com/CR-AudioViz-AI/platform-sdk"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "framer-motion": "^10.18.0"
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
