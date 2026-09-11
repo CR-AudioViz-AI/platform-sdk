@@ -1,0 +1,36 @@
+# .github/workflows/version-bump.yml
+# Purpose: fail any change to the SDK's code that does not bump package.json "version".
+# Date: 2026-09-11
+#
+# Why: apps' Next.js build cache treats an installed package whose version is unchanged
+# as unchanged. The SDK sat at 1.0.0 for 52 commits, so cached builds kept compiling OLD
+# SDK code after apps pinned a new commit - javari-scrapbook (2-minute outage) and
+# javari-omni-media both served "Minified React error #61" from exactly this.
+#
+# CR AudioViz AI, LLC · EIN 39-3646201
+name: SDK version bump required
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Code changed => version must change
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then BASE="origin/${{ github.base_ref }}"; else BASE="HEAD~1"; fi
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- . ':(exclude).github' ':(exclude)*.md' ':(exclude)e2e' || true)
+          [ -z "$CHANGED" ] && { echo "No SDK code changed."; exit 0; }
+          OLD=$(git show "$BASE:package.json" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).version))")
+          NEW=$(node -e "console.log(require('./package.json').version)")
+          echo "Changed files:"; echo "$CHANGED"; echo "version $OLD -> $NEW"
+          if [ "$OLD" = "$NEW" ]; then
+            echo "::error::SDK code changed but package.json version is still $NEW. Bump it - apps' build caches key on the version and will otherwise compile stale SDK code."
+            exit 1
+          fi
