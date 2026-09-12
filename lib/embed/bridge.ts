@@ -109,8 +109,22 @@ function listen(): void {
   listening = true;
   window.addEventListener('message', (event: MessageEvent) => {
     if (event.source !== window.parent || !isTrustedParentOrigin(event.origin)) return;
-    const data = event.data as { ns?: string; type?: string; id?: string; accessToken?: unknown; expiresAt?: unknown } | null;
-    if (!data || data.ns !== NS || data.type !== 'token') return;
+    const data = event.data as { ns?: string; type?: string; id?: string; accessToken?: unknown; expiresAt?: unknown; top?: unknown } | null;
+    if (!data || data.ns !== NS) return;
+
+    // 2026-09-12: an embedded app is sized to its full content height, so nothing
+    // scrolls INSIDE the frame - the site page does. `position: sticky` therefore did
+    // nothing and an app's own navigation scrolled away, leaving no way to change page
+    // without scrolling back to the top. The parent now reports how far the frame has
+    // scrolled past the top of the viewport; an app pins its bar to that offset.
+    if (data.type === 'viewport') {
+      if (typeof data.top === 'number' && Number.isFinite(data.top)) {
+        document.documentElement.style.setProperty('--embed-scroll-top', `${Math.max(0, Math.round(data.top))}px`);
+      }
+      return;
+    }
+
+    if (data.type !== 'token') return;
     const reply: TokenReply = {
       accessToken: typeof data.accessToken === 'string' && data.accessToken ? data.accessToken : null,
       expiresAt: typeof data.expiresAt === 'number' ? data.expiresAt : null,
