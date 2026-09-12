@@ -18,15 +18,20 @@
 // CR AudioViz AI, LLC · EIN 39-3646201
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { initBridge, isEmbedded, postToParent } from '../../lib/embed/bridge';
+import { initBridge, isEmbedded, postToParent, trustBrandedParent } from '../../lib/embed/bridge';
 
 const AUTH_PATHS = new Set(['/login', '/signup']);
 
-export default function EmbedBridge(): null {
+export default function EmbedBridge({ brandedDomain }: { brandedDomain?: string }): null {
   const pathname = usePathname();
+
+  // Registered before the bridge starts listening, so the first token reply from a
+  // branded domain is accepted rather than dropped. 2026-09-12
+  trustBrandedParent(brandedDomain);
 
   useEffect(() => {
     if (!isEmbedded()) return;
+    trustBrandedParent(brandedDomain);
     initBridge();
     postToParent({ type: 'ready' });
 

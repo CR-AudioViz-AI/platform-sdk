@@ -42,8 +42,31 @@ const PARENT_ORIGINS = new Set([
 const PREVIEW_PARENT = /^https:\/\/craudiovizai-[a-z0-9]+-roy-hendersons-projects-1d3d5e94\.vercel\.app$/;
 const PREVIEW_SELF = /^[a-z0-9-]+-[a-z0-9]+-roy-hendersons-projects-1d3d5e94\.vercel\.app$/;
 
+/**
+ * An app's own branded domain, which the core also serves (javarimarket.com serving
+ * Javari Market Oracle, javaristudio.com serving Media Studio, and so on).
+ *
+ * 2026-09-12: the frame-ancestors policy already allowed those domains to frame an
+ * app, but this bridge trusted only craudiovizai.com - so on a branded domain the
+ * parent's token was refused and the app showed everyone as signed out, no matter how
+ * they signed in. Clicking "sign in" asked the parent to sign in, the parent already
+ * was, and nothing changed: a loop with no error anywhere.
+ *
+ * The app declares its own branded domain (it is the one being served there), the same
+ * value its next.config already passes to frameAncestors.
+ */
+const brandedParents = new Set<string>();
+
+export function trustBrandedParent(domain: string | null | undefined): void {
+  const d = (domain ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  if (!d || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) return;
+  brandedParents.add(`https://${d}`);
+  brandedParents.add(`https://www.${d}`);
+}
+
 export function isTrustedParentOrigin(origin: string): boolean {
   if (PARENT_ORIGINS.has(origin)) return true;
+  if (brandedParents.has(origin)) return true;
   return typeof window !== 'undefined' && PREVIEW_SELF.test(window.location.hostname) && PREVIEW_PARENT.test(origin);
 }
 

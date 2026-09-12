@@ -100,7 +100,7 @@ export * from './components/brand';
 // and in next.config.js: require('@craudioviz/platform-sdk/embed-headers.js').
 // Browser-safe and dependency-free on purpose: this barrel is imported by 55 apps
 // that follow main unpinned, so nothing here may pull in a Node-only module.
-export { isEmbedded, postToParent, parentAccessToken, initBridge, isTrustedParentOrigin } from './lib/embed/bridge';
+export { isEmbedded, postToParent, parentAccessToken, initBridge, isTrustedParentOrigin, trustBrandedParent } from './lib/embed/bridge';
 export { EMBED_PREPAINT_SCRIPT } from './lib/embed/prepaint';
 export { default as EmbedBridge } from './components/embed/EmbedBridge';
 
