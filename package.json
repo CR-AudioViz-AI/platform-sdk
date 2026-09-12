@@ -1,6 +1,6 @@
 {
   "name": "@craudioviz/platform-sdk",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "CR AudioViz AI Platform SDK - Centralized auth, credits, and cross-selling",
   "main": "index.ts",
   "types": "index.ts",
